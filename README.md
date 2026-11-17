@@ -1,42 +1,36 @@
-# GeoDiário 📍📷
+# GeoDiário
 
-Aplicativo móvel desenvolvido em **Flutter/Dart** para registrar fotografias associadas automaticamente à **data, ao horário e à localização geográfica (GPS)** em que foram capturadas. Os registros são armazenados localmente com **SQLite** (`sqflite`).
+Aplicativo feito em Flutter para a atividade prática de Desenvolvimento Mobile. A ideia é registrar fotos de lugares ou momentos do dia a dia junto com a data, a hora e a localização (latitude e longitude) de onde a foto foi tirada. Tudo fica salvo no próprio celular usando SQLite.
 
-> Atividade prática da disciplina de Desenvolvimento Mobile.
+## Funcionalidades
 
----
+**Captura de foto (RF01):** ao tocar em "Nova foto" o app já abre a câmera. Depois de tirar a foto dá para trocar por outra antes de salvar.
 
-## Funcionalidades implementadas
+**Informações do registro (RF02):** quando a foto é tirada, o app guarda a data e a hora e busca a posição no GPS. Se o GPS estiver desligado ou a permissão for negada, aparece uma mensagem com a opção de tentar de novo (ou de abrir as configurações, se a permissão foi negada de vez). O usuário preenche um título, que é obrigatório, e uma descrição, que é opcional.
 
-| Requisito | Funcionalidade | Onde está no código |
-|---|---|---|
-| **RF01** – Captura de fotografia | Abre a câmera do dispositivo (automaticamente ao entrar na tela *Novo registro*) e permite tirar outra foto antes de salvar. | `services/camera_service.dart` → `tirarFoto()` |
-| **RF02** – Informações do registro | No momento da captura o app registra **data e hora** e obtém **latitude e longitude** pelo GPS, tratando serviço desativado, permissão negada e negada permanentemente (com atalho para as configurações). O usuário informa um **título** (obrigatório) e uma **descrição** (opcional). | `services/location_service.dart`, `views/novo_registro_screen.dart` |
-| **RF03** – Armazenamento local | A foto é copiada da pasta temporária do `image_picker` para a pasta de documentos do app (`<documentos>/fotos/geo_<timestamp>.jpg`). O banco SQLite guarda o **caminho** do arquivo e os demais dados. | `services/camera_service.dart` → `salvarFotoPermanente()`, `database/database_helper.dart` |
-| **RF04** – Consulta dos registros | Tela inicial em formato de **galeria** (grade com miniatura, título e data), ordenada do registro mais recente para o mais antigo, com estado vazio e *pull-to-refresh*. | `views/galeria_screen.dart`, `components/registro_card.dart` |
-| **RF05** – Visualização e exclusão | Ao tocar em um registro, exibe a foto ampliada e todas as informações (título, descrição, data/hora, coordenadas e caminho do arquivo). O botão de lixeira pede confirmação e **exclui o registro do banco e o arquivo de imagem** do dispositivo. | `views/detalhe_screen.dart`, `providers/registros_provider.dart` → `excluir()` |
+**Armazenamento local (RF03):** o `image_picker` salva a foto numa pasta temporária, então o app copia o arquivo para a pasta de documentos do aplicativo (`fotos/geo_<timestamp>.jpg`). No banco fica salvo o caminho desse arquivo junto com os outros dados.
 
-Operações CRUD implementadas: **Create** (inserir), **Read** (listar/consultar) e **Delete** (excluir).
+**Consulta (RF04):** a tela inicial mostra os registros em uma galeria (grade com a foto, o título e a data), do mais recente para o mais antigo.
 
----
+**Visualização e exclusão (RF05):** tocando em um registro abre a tela de detalhes com a foto maior e todas as informações. Pelo ícone de lixeira é possível excluir. O app pede confirmação e apaga tanto a linha do banco quanto o arquivo da foto.
+
+Das operações de CRUD, foram implementadas inclusão, consulta e exclusão, que são as pedidas no enunciado.
 
 ## Bibliotecas utilizadas
 
-| Pacote | Uso |
+| Pacote | Para que foi usado |
 |---|---|
-| [`image_picker`](https://pub.dev/packages/image_picker) | Captura de fotos com a câmera do dispositivo |
-| [`geolocator`](https://pub.dev/packages/geolocator) | Permissões de localização e obtenção de latitude/longitude |
-| [`sqflite`](https://pub.dev/packages/sqflite) | Banco de dados SQLite local |
-| [`path`](https://pub.dev/packages/path) | Montagem de caminhos de arquivos (banco e fotos) |
-| [`path_provider`](https://pub.dev/packages/path_provider) | Localização da pasta de documentos do app, onde as fotos são guardadas |
-| [`provider`](https://pub.dev/packages/provider) | Gerenciamento de estado (`ChangeNotifier`) |
-| [`intl`](https://pub.dev/packages/intl) | Formatação de data e hora (`dd/MM/yyyy HH:mm:ss`) |
-
----
+| `image_picker` | Abrir a câmera e tirar a foto |
+| `geolocator` | Pedir permissão de localização e pegar latitude e longitude |
+| `sqflite` | Banco de dados SQLite |
+| `path` | Montar os caminhos do banco e das fotos |
+| `path_provider` | Descobrir a pasta de documentos do app, onde as fotos ficam |
+| `provider` | Gerenciar o estado da lista de registros |
+| `intl` | Formatar data e hora (dd/MM/yyyy HH:mm:ss) |
 
 ## Estrutura da tabela SQLite
 
-Banco: `geodiario.db` — Tabela: **`registros`**
+O banco se chama `geodiario.db` e tem uma tabela, `registros`:
 
 ```sql
 CREATE TABLE registros (
@@ -52,68 +46,53 @@ CREATE TABLE registros (
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
-| `id` | INTEGER (PK, autoincremento) | Identificador do registro |
-| `titulo` | TEXT, obrigatório | Título informado pelo usuário |
-| `descricao` | TEXT | Descrição opcional |
-| `caminho_foto` | TEXT, obrigatório | Caminho do arquivo da foto no armazenamento local do app |
-| `data_hora` | TEXT, obrigatório | Data e hora da captura no formato ISO 8601 (ex.: `2026-11-15T17:30:12.000`) |
-| `latitude` | REAL, obrigatório | Latitude obtida pelo GPS |
-| `longitude` | REAL, obrigatório | Longitude obtida pelo GPS |
+| id | INTEGER | Chave primária, gerada automaticamente |
+| titulo | TEXT | Título digitado pelo usuário (obrigatório) |
+| descricao | TEXT | Descrição opcional |
+| caminho_foto | TEXT | Caminho do arquivo da foto no celular |
+| data_hora | TEXT | Data e hora da foto em formato ISO 8601, ex.: 2026-11-15T17:30:12 |
+| latitude | REAL | Latitude obtida pelo GPS |
+| longitude | REAL | Longitude obtida pelo GPS |
 
-> A imagem **não** é gravada dentro do banco (BLOB): o banco armazena apenas o caminho, e o arquivo fica na pasta de documentos do aplicativo.
-
----
+A imagem não é gravada dentro do banco, só o caminho dela.
 
 ## Organização do código
 
 ```
 lib/
-├── main.dart                        # Ponto de entrada: MaterialApp + Provider
-├── models/
-│   └── registro.dart                # Modelo Registro (toMap / fromMap)
-├── database/
-│   └── database_helper.dart         # Conexão SQLite, criação da tabela e CRUD
-├── services/
-│   ├── camera_service.dart          # Captura, cópia e exclusão de fotos
-│   └── location_service.dart        # Permissões e leitura do GPS
-├── providers/
-│   └── registros_provider.dart      # Estado da lista (ChangeNotifier)
-├── views/
-│   ├── galeria_screen.dart          # RF04 – galeria de registros
-│   ├── novo_registro_screen.dart    # RF01/RF02/RF03 – novo registro
-│   └── detalhe_screen.dart          # RF05 – visualização e exclusão
-├── components/
-│   ├── registro_card.dart           # Cartão da galeria
-│   └── foto_registro.dart           # Exibição da foto a partir do arquivo local
-└── utils/
-    └── formatadores.dart            # Formatação de data/hora e coordenadas
+  main.dart                       inicia o app e o Provider
+  models/registro.dart            classe Registro (toMap e fromMap)
+  database/database_helper.dart   abre o banco, cria a tabela e faz insert, select e delete
+  services/camera_service.dart    tira a foto, copia para a pasta do app e apaga o arquivo
+  services/location_service.dart  permissões e leitura do GPS
+  providers/registros_provider.dart  lista de registros (ChangeNotifier)
+  views/galeria_screen.dart       tela inicial com a galeria
+  views/novo_registro_screen.dart tela de novo registro
+  views/detalhe_screen.dart       tela de detalhes e exclusão
+  components/registro_card.dart   cartão usado na galeria
+  components/foto_registro.dart   mostra a foto a partir do arquivo
+  utils/formatadores.dart         formatação de data e coordenadas
 test/
-└── registro_test.dart               # Testes do modelo (conversão para a tabela)
+  registro_test.dart              testes da conversão do modelo para a tabela
 ```
 
-Fluxo das camadas: **views → provider → database / services**. As telas não acessam o banco diretamente.
-
----
+Segui a mesma divisão de pastas do exemplo de CRUD com sqflite visto em aula (models, provider, views e components). As telas não acessam o banco direto: elas chamam o provider, e o provider usa o `DatabaseHelper` e os serviços.
 
 ## Capturas de tela
 
-Capturas feitas em emulador Android 15 (Pixel 7). A câmera do emulador fotografa uma cena virtual, e as coordenadas foram definidas pelo controle de localização do emulador (Pampulha, em Belo Horizonte, e Ouro Preto).
+Os prints foram tirados no emulador do Android Studio (Pixel 7, Android 15). A câmera do emulador mostra uma cena virtual, por isso as fotos são dessa casinha. A localização foi definida pelo próprio emulador (Pampulha, em BH, e Ouro Preto).
 
-| Galeria vazia | Novo registro (RF01/RF02) | Galeria (RF04) |
+| Galeria vazia | Novo registro | Galeria |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/01_galeria_vazia.png" width="230" alt="Galeria vazia"> | <img src="docs/screenshots/02_novo_registro.png" width="230" alt="Novo registro com foto, data/hora e coordenadas"> | <img src="docs/screenshots/03_galeria.png" width="230" alt="Galeria com dois registros"> |
-| Estado inicial, sem registros | Foto, data/hora e GPS preenchidos automaticamente; título e descrição informados pelo usuário | Registros salvos no SQLite, do mais recente para o mais antigo |
+| <img src="docs/screenshots/01_galeria_vazia.png" width="230" alt="Galeria vazia"> | <img src="docs/screenshots/02_novo_registro.png" width="230" alt="Novo registro"> | <img src="docs/screenshots/03_galeria.png" width="230" alt="Galeria com registros"> |
 
-| Detalhe (RF05) | Exclusão (RF05) |
+| Detalhes | Exclusão |
 |:---:|:---:|
-| <img src="docs/screenshots/04_detalhe.png" width="230" alt="Detalhe do registro"> | <img src="docs/screenshots/05_excluir.png" width="230" alt="Confirmação de exclusão"> |
-| Foto ampliada com título, descrição, data/hora, coordenadas e caminho do arquivo | Confirmação antes de apagar o registro do banco e o arquivo da foto |
-
----
+| <img src="docs/screenshots/04_detalhe.png" width="230" alt="Detalhes do registro"> | <img src="docs/screenshots/05_excluir.png" width="230" alt="Confirmação de exclusão"> |
 
 ## Permissões
 
-**Android** (`android/app/src/main/AndroidManifest.xml`):
+No Android (`android/app/src/main/AndroidManifest.xml`):
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -121,27 +100,23 @@ Capturas feitas em emulador Android 15 (Pixel 7). A câmera do emulador fotograf
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 ```
 
-**iOS** (`ios/Runner/Info.plist`): `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` e `NSLocationWhenInUseUsageDescription`.
+No iOS foram adicionadas no `Info.plist` as mensagens `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` e `NSLocationWhenInUseUsageDescription`.
 
----
+## Como rodar
 
-## Como executar
-
-Pré-requisitos: Flutter SDK e um dispositivo Android (físico ou emulador). O `sqflite` **não** funciona na versão Web, então o app deve ser executado em Android ou iOS.
+Precisa do Flutter instalado e de um celular Android ou emulador. Não funciona na versão web porque o sqflite não tem suporte para web.
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-Para testar no **emulador Android**:
-- **Câmera:** o emulador oferece uma câmera virtual (cena 3D) para fotografar.
-- **GPS:** em *Extended controls (⋯) → Location*, escolha um ponto no mapa e clique em **Set location**.
+No emulador, para mudar a localização: abra os controles estendidos (botão "..." na barra lateral), vá em Location, escolha um ponto no mapa e clique em "Set location".
 
-Testes automatizados:
+Para rodar os testes:
 
 ```bash
 flutter test
 ```
 
-Desenvolvido e testado com Flutter 3.50 (stable) em emulador Android 15 (API 35).
+Versão usada no desenvolvimento: Flutter 3.50 (stable).

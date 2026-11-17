@@ -24,7 +24,7 @@ class RegistrosProvider with ChangeNotifier {
   int get quantidade => _itens.length;
   bool get carregando => _carregando;
 
-  /// READ – carrega todos os registros do banco.
+  /// READ: carrega todos os registros do banco.
   Future<void> carregar() async {
     _carregando = true;
     notifyListeners();
@@ -39,14 +39,14 @@ class RegistrosProvider with ChangeNotifier {
     }
   }
 
-  /// CREATE – grava um novo registro e o insere no topo da lista.
+  /// CREATE: grava um novo registro e o insere no topo da lista.
   Future<void> adicionar(Registro registro) async {
     final id = await _db.inserir(registro);
     _itens.insert(0, registro.copyWith(id: id));
     notifyListeners();
   }
 
-  /// DELETE – remove o registro do banco e o arquivo de imagem correspondente.
+  /// DELETE: remove o registro do banco e o arquivo de imagem correspondente.
   Future<void> excluir(Registro registro) async {
     if (registro.id == null) return;
     await _db.excluir(registro.id!);

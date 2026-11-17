@@ -52,7 +52,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
     super.dispose();
   }
 
-  /// RF01 – captura a foto e dispara a obtenção da data/hora e do GPS (RF02).
+  /// RF01: captura a foto e dispara a obtenção da data/hora e do GPS (RF02).
   Future<void> _tirarFoto() async {
     try {
       final foto = await _cameraService.tirarFoto();
@@ -67,7 +67,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
     }
   }
 
-  /// RF02 – obtém latitude e longitude pelo GPS.
+  /// RF02: obtém latitude e longitude pelo GPS.
   Future<void> _buscarLocalizacao() async {
     setState(() {
       _buscandoLocalizacao = true;
@@ -91,7 +91,7 @@ class _NovoRegistroScreenState extends State<NovoRegistroScreen> {
     }
   }
 
-  /// RF03 – copia a foto para o armazenamento do app e grava o registro no SQLite.
+  /// RF03: copia a foto para o armazenamento do app e grava o registro no SQLite.
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
     if (_foto == null || _posicao == null || _dataHora == null) return;

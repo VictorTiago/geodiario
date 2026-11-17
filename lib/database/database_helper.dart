@@ -47,20 +47,20 @@ class DatabaseHelper {
     );
   }
 
-  /// CREATE – insere um registro e retorna o id gerado.
+  /// CREATE: insere um registro e retorna o id gerado.
   Future<int> inserir(Registro registro) async {
     final db = await database;
     return db.insert(tabela, registro.toMap());
   }
 
-  /// READ – retorna todos os registros, do mais recente para o mais antigo.
+  /// READ: retorna todos os registros, do mais recente para o mais antigo.
   Future<List<Registro>> listarTodos() async {
     final db = await database;
     final linhas = await db.query(tabela, orderBy: 'data_hora DESC');
     return linhas.map(Registro.fromMap).toList();
   }
 
-  /// READ – busca um registro pelo id.
+  /// READ: busca um registro pelo id.
   Future<Registro?> buscarPorId(int id) async {
     final db = await database;
     final linhas = await db.query(
@@ -72,7 +72,7 @@ class DatabaseHelper {
     return linhas.isEmpty ? null : Registro.fromMap(linhas.first);
   }
 
-  /// DELETE – remove um registro pelo id e retorna a quantidade removida.
+  /// DELETE: remove um registro pelo id e retorna a quantidade removida.
   Future<int> excluir(int id) async {
     final db = await database;
     return db.delete(tabela, where: 'id = ?', whereArgs: [id]);
